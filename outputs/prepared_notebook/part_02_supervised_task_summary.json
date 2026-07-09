@@ -1,0 +1,129 @@
+{
+  "task_definition": {
+    "problem_type": "supervised regression forecasting",
+    "prediction_unit": "store-date pair",
+    "target_column": "Sales",
+    "train_period": "2014-01-01 to 2015-06-19",
+    "validation_period": "2015-06-20 to 2015-07-31",
+    "test_period": "2015-08-01 to 2015-09-17"
+  },
+  "target_column": "Sales",
+  "training_target": "log_sales = log1p(Sales)",
+  "categorical_features": [
+    "Store",
+    "DayOfWeek",
+    "StateHoliday",
+    "StoreType",
+    "Assortment"
+  ],
+  "numeric_features": [
+    "Open",
+    "Promo",
+    "SchoolHoliday",
+    "CompetitionDistance",
+    "CompetitionOpenSinceMonth",
+    "CompetitionOpenSinceYear",
+    "Promo2",
+    "Promo2SinceWeek",
+    "Promo2SinceYear",
+    "year",
+    "month",
+    "day",
+    "weekofyear",
+    "quarter",
+    "dayofyear",
+    "is_weekend",
+    "is_month_start",
+    "is_month_end",
+    "days_since_start",
+    "competition_open_months",
+    "promo2_active",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos"
+  ],
+  "model_features": [
+    "Store",
+    "DayOfWeek",
+    "StateHoliday",
+    "StoreType",
+    "Assortment",
+    "Open",
+    "Promo",
+    "SchoolHoliday",
+    "CompetitionDistance",
+    "CompetitionOpenSinceMonth",
+    "CompetitionOpenSinceYear",
+    "Promo2",
+    "Promo2SinceWeek",
+    "Promo2SinceYear",
+    "year",
+    "month",
+    "day",
+    "weekofyear",
+    "quarter",
+    "dayofyear",
+    "is_weekend",
+    "is_month_start",
+    "is_month_end",
+    "days_since_start",
+    "competition_open_months",
+    "promo2_active",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos"
+  ],
+  "excluded_features": [
+    "Customers"
+  ],
+  "feature_groups": {
+    "store_identity": [
+      "Store"
+    ],
+    "store_metadata": [
+      "StoreType",
+      "Assortment"
+    ],
+    "calendar": [
+      "DayOfWeek",
+      "year",
+      "month",
+      "day",
+      "weekofyear",
+      "quarter",
+      "dayofyear",
+      "is_weekend",
+      "is_month_start",
+      "is_month_end",
+      "days_since_start",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos"
+    ],
+    "operations_and_holidays": [
+      "Open",
+      "StateHoliday",
+      "SchoolHoliday"
+    ],
+    "promotions": [
+      "Promo",
+      "Promo2",
+      "Promo2SinceWeek",
+      "Promo2SinceYear",
+      "promo2_active"
+    ],
+    "competition": [
+      "CompetitionDistance",
+      "CompetitionOpenSinceMonth",
+      "CompetitionOpenSinceYear",
+      "competition_open_months"
+    ]
+  },
+  "baseline_results": {
+    "validation_rmspe": 0.2572570719130853,
+    "validation_mae": 1111.7830421413503
+  }
+}

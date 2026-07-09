@@ -1,0 +1,139 @@
+{
+  "settings": {
+    "use_sample": true,
+    "sample_stores": 100,
+    "min_date": "2014-01-01",
+    "validation_days": 42,
+    "random_state": 42
+  },
+  "raw_shapes": {
+    "train": [
+      1017209,
+      9
+    ],
+    "test": [
+      41088,
+      8
+    ],
+    "store": [
+      1115,
+      10
+    ]
+  },
+  "prepared_shapes": {
+    "train": [
+      51108,
+      34
+    ],
+    "validation": [
+      4200,
+      34
+    ],
+    "test": [
+      3456,
+      33
+    ]
+  },
+  "date_ranges": {
+    "train": [
+      "2014-01-01",
+      "2015-06-19"
+    ],
+    "validation": [
+      "2015-06-20",
+      "2015-07-31"
+    ],
+    "test": [
+      "2015-08-01",
+      "2015-09-17"
+    ]
+  },
+  "feature_lists": {
+    "target": "Sales",
+    "categorical_features": [
+      "Store",
+      "DayOfWeek",
+      "StateHoliday",
+      "StoreType",
+      "Assortment"
+    ],
+    "numeric_features": [
+      "Open",
+      "Promo",
+      "SchoolHoliday",
+      "CompetitionDistance",
+      "CompetitionOpenSinceMonth",
+      "CompetitionOpenSinceYear",
+      "Promo2",
+      "Promo2SinceWeek",
+      "Promo2SinceYear",
+      "year",
+      "month",
+      "day",
+      "weekofyear",
+      "quarter",
+      "dayofyear",
+      "is_weekend",
+      "is_month_start",
+      "is_month_end",
+      "days_since_start",
+      "competition_open_months",
+      "promo2_active",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos"
+    ],
+    "model_features": [
+      "Store",
+      "DayOfWeek",
+      "StateHoliday",
+      "StoreType",
+      "Assortment",
+      "Open",
+      "Promo",
+      "SchoolHoliday",
+      "CompetitionDistance",
+      "CompetitionOpenSinceMonth",
+      "CompetitionOpenSinceYear",
+      "Promo2",
+      "Promo2SinceWeek",
+      "Promo2SinceYear",
+      "year",
+      "month",
+      "day",
+      "weekofyear",
+      "quarter",
+      "dayofyear",
+      "is_weekend",
+      "is_month_start",
+      "is_month_end",
+      "days_since_start",
+      "competition_open_months",
+      "promo2_active",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos"
+    ],
+    "relevant_features": [
+      "Promo",
+      "StateHoliday",
+      "SchoolHoliday",
+      "Open",
+      "DayOfWeek",
+      "StoreType",
+      "Assortment",
+      "CompetitionDistance",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos",
+      "competition_open_months",
+      "promo2_active"
+    ],
+    "leakage_columns_not_used": [
+      "Customers"
+    ]
+  }
+}
