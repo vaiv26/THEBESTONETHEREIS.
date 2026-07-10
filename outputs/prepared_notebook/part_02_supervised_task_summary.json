@@ -3,7 +3,7 @@
     "problem_type": "supervised regression forecasting",
     "prediction_unit": "store-date pair",
     "target_column": "Sales",
-    "train_period": "2014-01-01 to 2015-06-19",
+    "train_period": "2013-01-01 to 2015-06-19",
     "validation_period": "2015-06-20 to 2015-07-31",
     "test_period": "2015-08-01 to 2015-09-17"
   },
@@ -123,7 +123,7 @@
     ]
   },
   "baseline_results": {
-    "validation_rmspe": 0.2572570719130853,
-    "validation_mae": 1111.7830421413503
+    "validation_rmspe": 0.23557174679165915,
+    "validation_mae": 1078.8109678675191
   }
 }

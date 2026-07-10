@@ -1,8 +1,8 @@
 {
   "settings": {
-    "use_sample": true,
-    "sample_stores": 100,
-    "min_date": "2014-01-01",
+    "use_sample": false,
+    "sample_stores": null,
+    "min_date": null,
     "validation_days": 42,
     "random_state": 42
   },
@@ -22,21 +22,21 @@
   },
   "prepared_shapes": {
     "train": [
-      51108,
+      970379,
       34
     ],
     "validation": [
-      4200,
+      46830,
       34
     ],
     "test": [
-      3456,
+      41088,
       33
     ]
   },
   "date_ranges": {
     "train": [
-      "2014-01-01",
+      "2013-01-01",
       "2015-06-19"
     ],
     "validation": [
