@@ -74,7 +74,7 @@ class TabularSalesModel_MLP(nn.Module):
 #2 RNN, LSTM, GRU
 class RecurrentSalesModel(nn.Module):
     def __init__(self, model_type, encoded_feature_names, hiddenSize, numLayers, dropout, storeEmbeddingSize,
-                 selected_stores, horizon):
+                 selected_stores):
         super().__init__()
         recurrent_class = {"RNN": nn.RNN, "LSTM": nn.LSTM, "GRU": nn.GRU}[model_type]
         self.recurrent = recurrent_class(
@@ -99,7 +99,7 @@ class RecurrentSalesModel(nn.Module):
         context = torch.cat([hidden[-1], self.store_embedding(store_ids)], dim=1)
         batch_size, steps, _ = future_features.shape
         context = context.unsqueeze(1).expand(-1, steps, -1)
-        lead = torch.arange(1, steps + 1, device=history.device, dtype=history.dtype) / self.
+        lead = torch.arange(1, steps + 1, device=history.device, dtype=history.dtype) / horizon
         lead = lead.view(1, steps, 1).expand(batch_size, -1, -1)
         combined = torch.cat([context, future_features, lead], dim=-1)
         return self.head(combined).squeeze(-1)
