@@ -1209,37 +1209,37 @@
     "days_since_start": 443.08383631550146,
     "competition_open_months": 41.582138525256624,
     "promo2_active": 0.13951043870487717,
-    "dow_sin": -0.0002623315479272588,
-    "dow_cos": -0.002373228988752306,
-    "month_sin": 0.14562378180815616,
-    "month_cos": -0.030561479693152788
+    "dow_sin": -0.00026233154792725834,
+    "dow_cos": -0.0023732289887523077,
+    "month_sin": 0.14562378180815627,
+    "month_cos": -0.030561479693152777
   },
   "numeric_stds": {
     "Open": 0.37680981649819345,
-    "Promo": 0.4860439970249711,
+    "Promo": 0.4860439970249712,
     "SchoolHoliday": 0.3786891387012281,
-    "CompetitionDistance": 7709.600623662269,
+    "CompetitionDistance": 7709.60062366227,
     "CompetitionOpenSinceMonth": 4.283569162525669,
-    "CompetitionOpenSinceYear": 935.3786491274325,
-    "Promo2": 0.5000002575866269,
-    "Promo2SinceWeek": 15.313341549908278,
+    "CompetitionOpenSinceYear": 935.3786491274324,
+    "Promo2": 0.5000002575866268,
+    "Promo2SinceWeek": 15.313341549908275,
     "Promo2SinceYear": 1005.8773251845806,
     "year": 0.7513523125531513,
-    "month": 3.398130271538092,
-    "day": 8.767052754248377,
+    "month": 3.3981302715380926,
+    "day": 8.767052754248375,
     "weekofyear": 14.736199003735964,
     "quarter": 1.0989028432942791,
-    "dayofyear": 103.7972872887695,
-    "is_weekend": 0.45117972729507394,
-    "is_month_start": 0.17956728234546088,
-    "is_month_end": 0.17655501403139917,
-    "days_since_start": 261.6484334744184,
+    "dayofyear": 103.79728728876948,
+    "is_weekend": 0.4511797272950736,
+    "is_month_start": 0.17956728234546085,
+    "is_month_end": 0.17655501403139928,
+    "days_since_start": 261.64843347441837,
     "competition_open_months": 65.04211932297709,
-    "promo2_active": 0.3464785706347783,
+    "promo2_active": 0.3464785706347784,
     "dow_sin": 0.7073139899695748,
     "dow_cos": 0.7068962081380968,
     "month_sin": 0.6948830603626994,
-    "month_cos": 0.7035611204877108
+    "month_cos": 0.7035611204877111
   },
   "embedding_cardinalities": [
     1116,
@@ -1263,7 +1263,7 @@
     "dropout": 0.15
   },
   "validation_results": {
-    "rmspe": 0.13067946979437806,
-    "mae": 570.8723582829621
+    "rmspe": 0.12468668506105784,
+    "mae": 572.6765965874114
   }
 }
