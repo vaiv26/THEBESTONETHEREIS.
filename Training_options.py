@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.optim as optim
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
@@ -271,10 +271,33 @@ def make_forecast_inputs(history_frame, future_frame, horizon, lookback, store_t
         origin = common_dates[0]
         past = history_groups[int(store)]
         past = past[past["Date"] < origin].tail(lookback)
-        expected_past = pd.date_range(origin - pd.Timedelta(days=lookback), periods=lookback)
-        assert np.array_equal(past["Date"].to_numpy(), expected_past.to_numpy()), (
-            f"Store {store} does not have {lookback} consecutive historical days."
+        expected_past = pd.date_range(origin - pd.Timedelta(days=lookback), periods=lookback, freq = "D")
+
+        # If not number of days then padding with the previous value
+        if not np.array_equal(past["Date"].to_numpy(), expected_past.to_numpy()):
+                past = (
+                past.set_index("Date")
+                .reindex(expected_past)
+                .ffill()
+                .bfill()
+                )
+
+        # Fill anything that is still missing
+        for col in numeric_features:
+            past[col] = past[col].fillna(numeric_means[col])
+
+        for col in category_levels:
+            past[col] = past[col].fillna("missing")
+
+        past["Sales"] = past["Sales"].fillna(0)
+
+        past = (
+            past.reset_index()
+            .rename(columns={"index": "Date"})
         )
+
+        assert len(past) == lookback
+
         histories.append(np.column_stack([encode_sales(past["Sales"], sales_mean, sales_std), encode_features(past, numeric_features, numeric_means, category_levels, numeric_stds)]))
         futures.append(encode_features(group, numeric_features, numeric_means, category_levels, numeric_stds))
         store_ids.append(store_to_index[int(store)])
@@ -699,6 +722,115 @@ def mlp_basic_training_loop(
 
     return model, history, best_epoch
 
+def recurrent_training_loop(
+    model,
+    train_loader,
+    loss_function,
+    optimizer,
+    epochs=50,
+    val_inputs=None,
+    val_rows = None,
+    val_labels = None,
+    scheduler=None,
+    l1_lambda=0.0,
+    patience=None,
+    min_delta=0.001,
+    print_every=2,
+    model_path = "",
+    device = any,
+    batchSize = 64,
+    sales_std = None,
+    sales_mean = None,
+    horizon = None
+    ):
+
+    """Train any regression model with the same 5-step PyTorch loop."""
+
+    history = {"train_loss": [], "valid_loss": [], "valid_mae": []}
+    early_state = None
+    best_epoch = epochs
+    checkpoint_path = model_path
+
+    for epoch in range(epochs):
+        model.train()
+        batch_losses = []
+        for past, future, stores, target in train_loader:
+            past, future, stores, target = [
+                tensor.to(device) for tensor in (past, future, stores, target)
+            ]
+
+            # Forward pass
+            preds = model(past, future, stores, horizon)
+
+            # 2. Calculate loss
+            base_loss = loss_function(preds, target)
+            loss = base_loss + l1_lambda * l1_penalty(model)
+
+            # 3. Optimizer zero grad
+            optimizer.zero_grad()
+
+            # 4. Loss backwards
+            loss.backward()
+
+            # 4.1 Gradient clipping
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.1)
+
+            # 5. Optimizer step
+            optimizer.step()
+
+            batch_losses.append(base_loss.item())
+
+        history["train_loss"].append(float(np.mean(batch_losses)))
+            
+        if scheduler is not None:
+            scheduler.step()
+
+        if val_inputs is not None:
+            model.eval()
+            outputs = []
+            with torch.inference_mode():
+                for start in range(0, len(val_inputs[0]), batchSize):
+                    batch = [tensor[start:start + batchSize].to(device) for tensor in val_inputs]
+                    outputs.append(model(*batch, horizon).cpu().numpy())
+
+            val_scaled = np.concatenate(outputs, axis=0).ravel()
+            predictions = decode_sales(val_scaled, val_rows["Open"].to_numpy(), sales_std, sales_mean)
+            scores = regression_metrics(val_labels, predictions)
+            encoded_val_labels = encode_sales(val_labels, sales_mean, sales_std)
+
+            valid_loss = float(np.mean((val_scaled - encoded_val_labels) ** 2))
+            valid_mae = scores["mae"]
+
+            history["valid_loss"].append(valid_loss)
+            history["valid_mae"].append(valid_mae)
+
+            if valid_loss == min(history["valid_loss"]):
+                best_epoch = epoch + 1
+
+            if print_every and (epoch + 1) % print_every == 0:
+                print(
+                    f"Epoch {epoch + 1}/{epochs}, "
+                    f"Train Loss: {history['train_loss'][-1]:.4f}, "
+                    f"Validation Loss: {valid_loss:.4f}, "
+                    f"Validation MAE: {valid_mae:.4f}"
+                )
+
+            if patience is not None:
+                stop, early_state = update_early_stopping(
+                    model,
+                    valid_loss,
+                    state=early_state,
+                    patience=patience,
+                    min_delta=min_delta,
+                )
+                if stop:
+                    print(f"Stopping at epoch {epoch + 1}. {early_state['status']}")
+                    break
+
+    return model, history, best_epoch
+
+
+
 
 def basic_training_loop(
     model,
@@ -800,16 +932,38 @@ def basic_training_loop(
 # ---------------------------------------------------------------------
 
 def regression_metrics(y_true, y_pred):
-    """Compute standard regression metrics."""
+    """Compute regression metrics on the original Sales scale."""
 
-    mse = torch.mean((y_pred - y_true) ** 2).item()
-    rmse = float(np.sqrt(mse))
-    mae = torch.mean(torch.abs(y_pred - y_true)).item()
-    r2 = r2_score(
-        y_true.detach().cpu().numpy().reshape(-1),
-        y_pred.detach().cpu().numpy().reshape(-1),
+    y_true = np.asarray(y_true, dtype=np.float64).reshape(-1)
+    y_pred = np.asarray(y_pred, dtype=np.float64).reshape(-1)
+
+    assert y_true.shape == y_pred.shape
+    assert len(y_true) > 0
+    assert np.isfinite(y_true).all()
+    assert np.isfinite(y_pred).all()
+
+    positive = y_true > 0
+
+    rmspe = (
+        float(np.sqrt(np.mean(
+            ((y_true[positive] - y_pred[positive]) / y_true[positive]) ** 2
+        )))
+        if positive.any()
+        else np.nan
     )
-    return {"mse": mse, "rmse": rmse, "mae": mae, "r2": r2}
+
+    mse = float(np.mean((y_pred - y_true) ** 2))
+    rmse = float(np.sqrt(mse))
+    mae = float(np.mean(np.abs(y_pred - y_true)))
+    r2 = float(r2_score(y_true, y_pred))
+
+    return {
+        "rmspe": rmspe,
+        "mse": mse,
+        "rmse": rmse,
+        "mae": mae,
+        "r2": r2,
+    }
 
 
 def evaluate_regression(model, X, y, title="Evaluation", n_examples=10, print_results=True):
